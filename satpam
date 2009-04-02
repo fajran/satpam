@@ -1,6 +1,11 @@
 #!/bin/bash
 
-BASE=/tmp/satpam
+# Satpam - save and restore home directories
+
+# Author: Fajran Iman Rusadi <fajran@ubuntu.com>
+# License: GPL 2.0
+
+BASE=
 BACKUPDIRBASE=$BASE/var/lib/satpam
 LOGDIR=$BASE/var/log/satpam
 
@@ -17,16 +22,33 @@ fi
 mode=$1
 user=$2
 
-if [ "$mode" != "save" -a "$mode" != "restore" -a "$mode" != "check" ]; then
-	echo "Usage: satpam [save|restore|check] [username]"
-	exit 2
-fi
+case "$mode" in
+	save) ;;
+	restore) ;;
+	check) ;;
+	*)
+		echo "Usage: satpam [save|restore|check] [username]"
+		exit 2
+		;;
+esac
 
 HOMEDIR=$(eval echo ~$user)
 BACKUPDIR=$BACKUPDIRBASE/$HOMEDIR
 LOGFILE=$LOGDIR/satpam.$user.$(date +%Y%m%d.%H%M%S).log
 RET=0
 
+#
+# Check user
+#
+
+if ! id $user > /dev/null 2>&1 ; then
+	echo "User \"$user\" does not exist."
+	exit 5
+fi
+
+#
+# Run command
+#
 
 if [ "$mode" = "save" ]; then
 
@@ -47,7 +69,7 @@ if [ "$mode" = "save" ]; then
 
 	echo "# Finish: $(date -R)" >> $LOGFILE
 
-	echo "Home directory of $user ($HOMEDIR) is saved."
+	echo "Home directory of $user ($HOMEDIR) has been saved."
 fi
 
 if [ "$mode" = "restore" ]; then
@@ -73,7 +95,7 @@ if [ "$mode" = "restore" ]; then
 
 	echo "Finish: $(date -R)" >> $LOGFILE
 
-	echo "Home directory of $user ($HOMEDIR) is restored."
+	echo "Home directory of $user ($HOMEDIR) has been restored."
 fi
 
 if [ "$mode" = "check" ]; then
